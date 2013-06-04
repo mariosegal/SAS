@@ -1,0 +1,39 @@
+                                    Contents of WORK.A                                  1
+                                                            09:04 Thursday, March 7, 2013
+
+                           Obs      hhid       STATE    segment
+
+                            22    200003854     NY         3   
+                            23    200003864     NY         3   
+                            24    200003882     NY         2   
+                            25    200003886     NY         2   
+                            26    200003906     NY         4   
+                            27    200003940     NY         2   
+                            28    200003960     VA         3   
+                            29    200003962     NY         6   
+                                    Contents of WORK.B                                  2
+                                                            09:04 Thursday, March 7, 2013
+
+                            Obs      hhid        ZIP     group
+
+                              1    200003906    14221      O  
+                              2    200003940    14227      A  
+                              3    200003960    24541      M  
+                              4    200003962    14127         
+                              5    200003964    14224         
+                              6    200004012    14445      B  
+                              7    200004030    14215      H  
+                              8    200004038    14120      M  
+                                Contents of Merged Dataset                              3
+                                                            09:04 Thursday, March 7, 2013
+
+                  Obs      hhid       STATE    segment     ZIP     group
+
+                   22    200003854     NY         3                     
+                   23    200003864     NY         3                     
+                   24    200003882     NY         2                     
+                   25    200003886     NY         2                     
+                   26    200003906     NY         4       14221      O  
+                   27    200003940     NY         2       14227      A  
+                   28    200003960     VA         3       24541      M  
+                   29    200003962     NY         6       14127         
