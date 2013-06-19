@@ -1,7 +1,7 @@
 options mcompilenote=all;
 
-%macro create_report(class1,fmt1,condition,main_source,contrib_source,out_file,out_dir,logo_file=) / store;
-
+%macro create_report(class1=,fmt1=,condition=,main_source=,contrib_source=,out_file=,out_dir=,logo_file=) / store;
+%put _user_;
 %* define the MTB colors, not strictly required each time, but for portability;
 proc template;
      define style mtbnew;
@@ -752,10 +752,9 @@ proc template;
 		%* DID THEY ASK FOR OUT?;
 	missing;
 	%if &where ne %then %do;
-		%* DID THEY PROVIDE A WHERE clause;
 		where &where;
 	%end;
-		
+	where &where;	
 	var dda: mms: tda: sav: mtg: heq: iln: ccs: ira: trs: sec: card ccs_amt ins ind: sln: hh sdb: ;
 	CLASS &class1 &class2 &class3 / PRELOADFMT;
 	table &class_str, sum='All'*hh='HHs'*f=comma12. 
@@ -793,6 +792,7 @@ set &main_source;
 %if &where ne %then %do;
 where &where;
 %end;
+where &where;
 keep hhid &class1 &class2 &class3 hh;
 run;
 
@@ -888,6 +888,7 @@ run;
 		%* DID THEY PROVIDE A WHERE clause;
 		where &where;
 	%end;
+	where &where;
 		
 	var hh;
 	CLASS &class1 &class2 &class3 segment band ixi_tot cbr distance tenure_yr tran_code/ PRELOADFMT;
