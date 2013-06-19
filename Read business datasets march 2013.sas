@@ -59,3 +59,7 @@ end;
 drop miss;
 run;
 
+proc contents data=bb.bbmain_201212 varnum short;
+run;
+
+%as_logical(bb.bbmain_201212,bb.bbmain_201212(compress=binary), dda mms sav tda ira trs mtg heqb heqc cln card boloc baloc cls )
