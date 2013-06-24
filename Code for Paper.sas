@@ -29,7 +29,6 @@ data c;
 merge a (in=left) b (in=right) end=eof;
 retain missleft missright;
 by hhid;
-if left then output; *We want all records of left;
 *collect the desired statistics;
 if left and not right then missright+1;
 if right and not left then missleft+1;
@@ -37,6 +36,7 @@ if eof then do; *output the statistics;
 	put 'There were ' missleft 'Record on left dataset not found on the right dataset';
  	put 'WARNING: There were ' missright 'Records on right dataset not found on the left dataset';
 end;
+if left; *We want all records from left table;
 drop miss: ; *don't forget to drop the statistci variables or they will be part of the output dataset;
 run;
 
@@ -129,6 +129,22 @@ option mprint nosymbolgen nomlogic mcompilenote=all;
 	run;
 %mend null_to_zero;
 
+%macro null_to_zero(source, destination, variables);
+    data &destination;
+	set &source;
+	array names{*} 
+      %if &variables eq all or &variables eq %then _numeric_;
+	  %else &variables; ;
+
+	do i = 1 to dim(names);
+		if names{i} eq . then names{i} = 0;
+	end;
+	drop i;
+	run;
+%mend null_to_zero;
+
+
+
 data sample_data;
 input jan_orders feb_orders mar_orders;
 datalines;
@@ -140,7 +156,7 @@ datalines;
 ;
 run;
 
-%null_to_zero(source=sample_data,destination=sample_adjusted);
+%null_to_zero(source=sample_data,destination=sample_adjusted, variables=jan_orders feb_orders);
 
 ods rtf file = 'C:\Documents and Settings\ewnym5s\My Documents\SAS\output2.rtf';;
 
@@ -187,6 +203,21 @@ ods rtf close;
 	run;
 %mend as_logical;
 
+%macro as_logical(source, destination, variables);
+    data &destination;
+	set &source;
+	array names{*} 
+      %if &variables eq all or &variables eq %then _numeric_;
+	  %else &variables; ;
+
+	do i = 1 to dim(names);
+		if names{i} ge 1 then names{i} = 1;
+		else names{i} = 0;
+	end;
+	drop i;
+	run;
+%mend null_to_zero;
+
 data sample_data;
 input checking savings loans;
 datalines;
@@ -198,7 +229,7 @@ datalines;
 ;
 run;
 
-%as_logical(source=sample_data,destination=sample_logical);
+%as_logical(source=sample_data,destination=sample_logical,variables=checking);
 
 ods rtf file = 'C:\Documents and Settings\ewnym5s\My Documents\SAS\output4.rtf';;
 Title 'Sample Product Counts';

@@ -15,3 +15,11 @@ proc datasets lib=sashelp;
        change zipmil_&period =zipmil;
      run;
 quit;
+
+*]create a zip_char;
+
+data sashelp.zipcode;
+length zip_char $5;
+set sashelp.zipcode;
+zip_char = put(zip,z5.);
+run;
