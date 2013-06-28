@@ -282,11 +282,12 @@ proc template;
 	%let total = &total;
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&max1,integer),10000)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*12500);
-    %let min =%sysevalf(%sysfunc(divide(%sysevalf(&min1,integer),10000)),ceil);
+    %let min =%sysevalf(%sysfunc(divide(%sysevalf(&min1,integer),10000)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*12500);
 
+
 	ODS PDF startpage=YES;
-	%vbox_template(templ_name=balances,title=Balance Ranges - Deposit Products)
+	%vbox_template(templ_name=balances,title=Balance Ranges - Deposit Products,ylabel=Balance)
 
 	proc sgrender data=box_tran(where=(order in (1 2 3 4 5)))  template=balances; 
 	format order order.;
@@ -294,10 +295,10 @@ proc template;
 
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&max2,integer),10000)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*12500);
-    %let min =%sysevalf(%sysfunc(divide(%sysevalf(&min2,integer),10000)),ceil);
+    %let min =%sysevalf(%sysfunc(divide(%sysevalf(&min2,integer),10000)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*12500);
 
-	%vbox_template(templ_name=loans,title=Balance Ranges - Lending Products)
+	%vbox_template(templ_name=loans,title=Balance Ranges - Lending Products,ylabel=Balance)
 
 
 	ODS PDF startpage=NO;
@@ -308,10 +309,10 @@ proc template;
 
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&max3,integer),10000)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*12500);
-	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&min3,integer),10000)),ceil);
+	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&min3,integer),10000)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*12500);
 
-	%vbox_template(templ_name=other,title=Balance Ranges - Mortgage Home Equity and Securities)
+	%vbox_template(templ_name=other,title=Balance Ranges - Mortgage Home Equity and Securities,ylabel=Balance)
 
 	ODS PDF startpage=YES;
 
@@ -353,11 +354,13 @@ proc template;
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&cmax1,integer),100)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*125);
 
-	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin1,integer),100)),ceil);
+	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin1,integer),100)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*125);
 
+
+
 	ODS PDF startpage=NO;
-	%vbox_template(templ_name=contrib1,title=Contribution Ranges - Deposit Products)
+	%vbox_template(templ_name=contrib1,title=Contribution Ranges - Deposit Products,ylabel=Contribution)
 
 	proc sgrender data=cbox_tran(where=(order in (1 2 3 4 5)))  template=contrib1; 
 	format order order.;
@@ -366,10 +369,13 @@ proc template;
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&cmax2,integer),100)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*125);
 
-	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin2,integer),100)),ceil);
+	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin2,integer),100)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*125);
+    %if &min eq &max %then %do;
+	%let min = %eval(%sysevalf(%sysfunc(sum(&min,-125)),integer));
+	%end;
 
-	%vbox_template(templ_name=contrib2,title=Contribution Ranges - Loan Products)
+	%vbox_template(templ_name=contrib2,title=Contribution Ranges - Loan Products,ylabel=Contribution)
 
 	ODS PDF startpage=YES;
 
@@ -380,10 +386,13 @@ proc template;
 	%let max =%sysevalf(%sysfunc(divide(%sysevalf(&cmax3,integer),100)),ceil);
 	%let max = %eval(%sysevalf(&max,integer)*125);
 
-	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin3,integer),100)),ceil);
+	%let min =%sysevalf(%sysfunc(divide(%sysevalf(&cmin3,integer),100)),floor);
 	%let min = %eval(%sysevalf(&min,integer)*125);
+    %if &min eq &max %then %do;
+	%let min = %eval(%sysevalf(%sysfunc(sum(&min,-125)),integer));
+	%end;
 
-	%vbox_template(templ_name=contrib3,title=Contribution Ranges - Mortgage Home Equity and Securities)
+	%vbox_template(templ_name=contrib3,title=Contribution Ranges - Mortgage Home Equity and Securities,ylabel=Contribution)
 
 	ODS PDF startpage=NO;
 
@@ -431,10 +440,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 1 and hh_sum eq . ;
 	vbar segment / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A" ;
 	xaxis label='Customer Lifecycle Segment' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format  pct percent6.;
 	run;
 	%end;
@@ -477,10 +487,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 2 and hh_sum eq . ;
 	vbar tran_code / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='Transaction Segment' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format   pct percent6.;
 	run;
 	%end;
@@ -521,10 +532,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 7 and hh_sum eq . ;
 	vbar band / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='Profitability Band' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format pct percent6.;
 	run;
 	%end;
@@ -548,7 +560,7 @@ proc template;
 	Title 'Estimated Investable Assets';
 	ODS PDF startpage=NO;
 	proc sgplot data=segments1 ;
-	where _table_ eq 3 and  hh_sum ne . ;
+	where _table_ eq 3 and  hh_sum ne . and ixi_tot ne . ;
 	vbar ixi_tot / missing group=proxy groupdisplay=cluster response=hh_sum  stat=sum  grouporder=data nostatlabel  datalabel DATALABELATTRS=(Size=6) name="A";
 	vbar ixi_tot / missing group=proxy groupdisplay=cluster response=pct stat=sum  nostatlabel grouporder=data datalabel  DATALABELATTRS=(Size=6) name="B";
 	xaxis label='Investable Assets (IXI)' LABELATTRS=(Weight=Bold) tickvalueformat=DATA type=discrete discreteorder=data fitpolicy=stagger;
@@ -564,12 +576,13 @@ proc template;
 	ODS PDF startpage=NO;
 	Title 'Estimated Investable Assets';
 	proc sgplot data=segments1 ;
-	where _table_ eq 3 and hh_sum eq . ;
+	where _table_ eq 3 and hh_sum eq . and ixi_tot ne . ;
 	vbar ixi_tot / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='Investable Assets (IXI)' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Average Contribution' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format   pct percent6.;
 	run;
 	%end;
@@ -610,10 +623,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 5 and hh_sum eq . ;
 	vbar distance / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='Distance to Branch in Miles' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format   pct percent6.;
 	run;
 	%end;
@@ -656,10 +670,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 6 and hh_sum eq . ;
 	vbar tenure_yr / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='Tenure in Years' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format pct percent6.;
 	run;
 	%end;
@@ -701,10 +716,11 @@ proc template;
 	proc sgplot data=segments1 ;
 	where _table_ eq 4 and hh_sum eq . ;
 	vbar cbr / missing group=proxy groupdisplay=cluster response=pct nostatlabel grouporder=data 
-	           datalabel DATALABELATTRS=(Size=6);
+	           datalabel DATALABELATTRS=(Size=6) name="A";
 	xaxis label='CBR' LABELATTRS=(Weight=Bold)   tickvalueformat=DATA type=discrete discreteorder=data 
 	      fitpolicy=stagger;
 	yaxis label='Percent of HHs' LABELATTRS=(Weight=Bold) ;
+	keylegend "A" / title="";
 	format   pct percent6.;
 	run;
 	%end;
@@ -1177,12 +1193,12 @@ run;
 	
 %mend contrib_box;
 
-%macro vbox_template (templ_name=template1,title=)/ store;
+%macro vbox_template (templ_name=template1,title=,ylabel=)/ store;
 	proc template;
 	define statgraph &templ_name;
 	begingraph;
 	entrytitle "&title";
-	layout overlay / yaxisopts=(linearopts=( viewmax =&max viewmin=&min tickvalueformat=dollar12.) label='Balance' labelattrs=(weight=bold))
+	layout overlay / yaxisopts=(linearopts=( viewmax =&max viewmin=&min tickvalueformat=dollar12.) label="&ylabel" labelattrs=(weight=bold))
 	xaxisopts=( label="Product" labelattrs=(weight=bold) discreteopts=(TICKVALUEFITPOLICY=STAGGER) ) cycleattrs=true ;
 	%do i = 1 %to &total ;
 	
